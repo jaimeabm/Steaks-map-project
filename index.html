@@ -1,0 +1,129 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Jaime A Banda - Neighborhood Map Project</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="css/simple-sidebar.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+</head>
+
+<body>
+    <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="#menu-toggle" class="navbar-brand" id="menu-toggle">
+                    <span class="glyphicon glyphicon-th-large"></span>
+                </a>
+                <a class="navbar-brand">Neighborhood Map Project</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">Show Developer Information</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <div class="sidebar-content">
+                <h3>Menu</h3>
+                <hr>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="txtFilter" placeholder="Filter..." maxlength="50">
+                    <span class="input-group-btn">
+                        <button class="btn btn-ar btn-primary" type="button" id="btn-search" data-bind="click: pullData">Go!</button>
+                    </span>
+                </div>
+                <!--Results of the search-->
+                <div class="section-result" data-bind="foreach: model().places()">
+                    <div class="section-result-text-content" data-bind="click: $root.clickItem">
+                        <div class="section-result-header">
+                            <h3 class="section-result-title" data-bind="text: name"></h3>
+                        </div>
+                        <div class="section-result-details-container">
+                            <span class="section-result-details" data-bind="text: place.types[0]"></span>
+                            <span class="section-result-details" data-bind="text: place.formatted_address"></span>
+                        </div>
+                        <div class="section-result-details-container">
+                            <span class="section-result-details" data-bind="text: place.types[1]"></span>
+                        </div>
+                    </div>
+                    <div class="section-image-container">
+                        <div class="section-result-image" data-bind="attr: { style: 'background-image: url(' + place.icon + ');' }"></div>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+            <!-- /input-group -->
+        </div>
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1>Neighborhood Map Project</h1>
+                        <p>I have added a responsive menu toggling system. The menu will appear collapsed on smaller screens, and will appear non-collapsed on larger screens. When toggled using the button <span class="glyphicon glyphicon-th-large"></span>, the menu will appear/disappear. On small screens, the page content will be pushed off canvas.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="alert alert-success"  data-bind="visible: !model().hasError()">
+                            <strong>Success!</strong> data loaded succesfully.
+                        </div>
+                        <div class="alert alert-danger" data-bind="visible: model().hasError()">
+                            <strong>Warning!</strong> Unable to get the data from the server.
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="map" style="height: 75vh;"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <hr>
+                        <footer>
+                            <p>&copy; Jaime A Banda Company 2015</p>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /container -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>
+    window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')
+    </script>
+    <script src="js/vendor/bootstrap.min.js"></script>
+    <script src='js/vendor/knockout-3.3.0.min.js'></script>
+    <script src="js/main.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyBA0_DvzuRtgVEbSMHQr4YuHuVwtkEV3Sk&v=3&callback=initMap">
+    </script>
+</body>
+
+</html>
