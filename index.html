@@ -15,12 +15,11 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/bootstrap-theme.min.css">
-    <link rel="stylesheet" type="text/css" href="css/simple-sidebar.css">
     <link rel="stylesheet" href="css/main.css">
     <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
 </head>
 
-<body>
+<body data-bind="event: { onload: pullData }">
     <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
@@ -33,83 +32,88 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a href="#menu-toggle" class="navbar-brand" id="menu-toggle">
+                <a class="navbar-brand" id="menu-toggle" data-toggle="modal" data-target="#myModal">
                     <span class="glyphicon glyphicon-th-large"></span>
                 </a>
                 <a class="navbar-brand">Neighborhood Map Project</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">Show Developer Information</a></li>
+                    <li><a href="https://www.linkedin.com/in/jaime-banda-b3aab43b" target="_blank">Show Developer Information</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    <div id="wrapper">
-        <!-- Sidebar -->
-        <div id="sidebar-wrapper">
-            <div class="sidebar-content">
-                <h3>Menu</h3>
-                <hr>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="txtFilter" placeholder="Filter..." maxlength="50">
-                    <span class="input-group-btn">
-                        <button class="btn btn-ar btn-primary" type="button" id="btn-search" data-bind="click: pullData">Go!</button>
-                    </span>
-                </div>
-                <!--Results of the search-->
-                <div class="section-result" data-bind="foreach: model().places()">
-                    <div class="section-result-text-content" data-bind="click: $root.clickItem">
-                        <div class="section-result-header">
-                            <h3 class="section-result-title" data-bind="text: name"></h3>
-                        </div>
-                        <div class="section-result-details-container">
-                            <span class="section-result-details" data-bind="text: place.types[0]"></span>
-                            <span class="section-result-details" data-bind="text: place.formatted_address"></span>
-                        </div>
-                        <div class="section-result-details-container">
-                            <span class="section-result-details" data-bind="text: place.types[1]"></span>
-                        </div>
-                    </div>
-                    <div class="section-image-container">
-                        <div class="section-result-image" data-bind="attr: { style: 'background-image: url(' + place.icon + ');' }"></div>
-                    </div>
-                    <hr>
+    <!-- Page Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>Neighborhood Map Project</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="alert alert-danger" data-bind="visible: model().hasError()">
+                    <strong>Warning!</strong> Unable to get the data from the server.
                 </div>
             </div>
-            <!-- /input-group -->
         </div>
-        <!-- Page Content -->
-        <div id="page-content-wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h1>Neighborhood Map Project</h1>
-                        <p>I have added a responsive menu toggling system. The menu will appear collapsed on smaller screens, and will appear non-collapsed on larger screens. When toggled using the button <span class="glyphicon glyphicon-th-large"></span>, the menu will appear/disappear. On small screens, the page content will be pushed off canvas.</p>
-                    </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="map" style="height: 75vh;"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <hr>
+                <footer>
+                    <p>&copy; Jaime A Banda Company 2015</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Search places</h4>
                 </div>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="alert alert-success"  data-bind="visible: !model().hasError()">
-                            <strong>Success!</strong> data loaded succesfully.
+                <div class="modal-body">
+                    <form data-bind="submit: filterList">
+                        <div class="input-group">
+                            <input data-bind="textInput: filterText" type="text" class="form-control" id="txtFilter" placeholder="Filter..." maxlength="50">
+                            <span class="input-group-btn">
+                                <button class="btn btn-ar btn-primary" type="submit" id="btn-search">Go!</button>
+                            </span>
                         </div>
-                        <div class="alert alert-danger" data-bind="visible: model().hasError()">
-                            <strong>Warning!</strong> Unable to get the data from the server.
+                    </form>
+                    <!--Results of the search-->
+                    <div class="fixedHeightContainer">
+                        <div class="content" data-bind="foreach: filteredList()">
+                            <div class="section-result" data-bind="style: { backgroundColor: clicked() ? '#ccc' : '#fff' }">
+                                <div class="section-result-text-content" data-bind="click: $root.clickItem">
+                                    <div class="section-result-header">
+                                        <h3 class="section-result-title" data-bind="text: place().name"></h3>
+                                    </div>
+                                    <div class="section-result-details-container">
+                                        <span class="section-result-details" data-bind="text: place().types[0]"></span>
+                                        <span class="section-result-details" data-bind="text: place().formatted_address"></span>
+                                    </div>
+                                    <div class="section-result-details-container">
+                                        <span class="section-result-details" data-bind="text: place().types[1]"></span>
+                                    </div>
+                                </div>
+                                <div class="section-image-container">
+                                    <div class="section-result-image" data-bind="attr: { style: 'background-image: url(' + place().icon + ');' }"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div id="map" style="height: 75vh;"></div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <hr>
-                        <footer>
-                            <p>&copy; Jaime A Banda Company 2015</p>
-                        </footer>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
