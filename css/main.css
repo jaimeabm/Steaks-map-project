@@ -25,18 +25,29 @@ body {
 /***Modal***/
 
 .modal-content {
-    background-color: #000;
-    opacity: 0.8;
+    background-color: #999;
+    opacity: 0.6;
     filter: alpha(opacity=30); /* For IE8 and earlier */
 }
 
+.modal-header{
+    color: #09a80e;
+}
+
 .fixedHeightContainer {
-    height: 450px;
+    height: 250px;
+
 }
 
 .content {
     overflow: auto;
-    height: 450px;
+    height: 250px;
+}
+
+/***Format text on infowindow***/
+.window-info{
+    background-color: #ccc;
+    color: #07860c;
 }
 
 
@@ -58,6 +69,7 @@ body {
     border-radius: 10px 10px 10px 10px;
     -moz-border-radius: 10px 10px 10px 10px;
     -webkit-border-radius: 10px 10px 10px 10px;
+    background-color: #fff;
 }
 
 

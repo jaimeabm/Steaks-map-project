@@ -1,35 +1,37 @@
 /*
- * Jaime A Banda functions
- *
+ * JAIME A BANDA
+ * OCT/34/2016
  */
 
-"use strict";
-// https://api.foursquare.com/v2/venues/search?client_id=S30FAFJDFZXV1Q53NBZESTTORH2WA5FMJCCPR0XINEHOFUFL&client_secret=XF0MART2OR5NTWR4IKLUY43S3RNZBX5CP0PPZNMJ55YNDR4M&venuePhotos=1&section=food&radius=20&v=20130815&ll=31.736601,-106.4454308&query=pizza hut
-/*
- * Initialize the map
- *
- */
-// Variable for the map
+'use strict';
+// Variables for the map
 var map;
 var largeInfowindow;
 var bouncingIcon;
 
-var SEARCH_ITEM = "pizzas";
-var CLIENT_ID = "S30FAFJDFZXV1Q53NBZESTTORH2WA5FMJCCPR0XINEHOFUFL";
-var CLIENT_SECRET = "XF0MART2OR5NTWR4IKLUY43S3RNZBX5CP0PPZNMJ55YNDR4M";
-var FOUR_SQUARE_URL = "https://api.foursquare.com/v2/venues/search?" +
-    "client_id=" + CLIENT_ID +
-    "&client_secret=" + CLIENT_SECRET +
-    "&v=20130815&ll=31.7082435,-106.3810395&query=" + SEARCH_ITEM;
+var SEARCH_ITEM = 'steaks';
+var CLIENT_ID = 'S30FAFJDFZXV1Q53NBZESTTORH2WA5FMJCCPR0XINEHOFUFL';
+var CLIENT_SECRET = 'XF0MART2OR5NTWR4IKLUY43S3RNZBX5CP0PPZNMJ55YNDR4M';
+var FOUR_SQUARE_URL = 'https://api.foursquare.com/v2/venues/search?' +
+    'client_id=' + CLIENT_ID +
+    '&client_secret=' + CLIENT_SECRET +
+    '&section=food' +
+    '&radius=20' +
+    '&v=20130815' +
+    '&ll=LAT_PARAM,LNG_PARAM' +
+    '&query=SEARCH_ITEM';
 
+/**
+ * @description Initialize the map
+ */
 function initMap() {
     // Constructor creates a new map - only center and zoom are required.
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
-            lat: 31.7082435,
-            lng: -106.3810395
+            lat: 31.880772,
+            lng: -106.397618
         },
-        zoom: 12,
+        zoom: 14,
         mapTypeControl: false,
         scrollwheel: false,
     });
@@ -39,12 +41,25 @@ function initMap() {
 
     // Create the information window
     largeInfowindow = new google.maps.InfoWindow();
-
-    // Initialize service to search nearby places
-
+    google.maps.event.addListener(largeInfowindow, 'closeclick', function() {
+        // stop marker animation here
+        largeInfowindow.marker.setAnimation(null);
+    });
 }
 
-// Helper function for the alternative icon image
+/**
+ * @description Called to display an error if map is unable to load
+ */
+function mapError() {
+    init.model().hasError(true);
+    $('#map').html('<h3>Unable to load the map</h3>');
+}
+
+/**
+ * @description Helper function for the alternative icon image
+ * @param {string} markerColor - Hexadecimal representation of a color for the icon
+ * @return MarkerImage - A new icon with an specific color
+ */
 function makeMarkerIcon(markerColor) {
     var markerImage = new google.maps.MarkerImage(
         'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor +
@@ -56,47 +71,82 @@ function makeMarkerIcon(markerColor) {
     return markerImage;
 }
 
+/**
+ * @description Helper function display the info window with info of an specific place
+ * @param {Marker} marker - Marker object selected that contain information
+ * @param {InfoWindow} infowindow - The window that display information of a place
+ */
 function populateInfoWindow(marker, infowindow) {
-    // Check to make sure the infowindow is not already opened on this marker.
-    if (infowindow.marker != marker) {
-        infowindow.marker = marker;
-        infowindow.setContent('<h4>Hola</h4><div>' + marker.title + '</div>');
-        infowindow.open(map, marker);
-        // Make sure the marker property is cleared if the infowindow is closed.
-        infowindow.addListener('closeclick', function() {
-            //this.setMarker(null);
-        });
-    }
+    //infowindow.close();
+    infowindow.marker = marker;
+    infowindow.setContent('<div><p>' + marker.title + '</p>' +
+        '<p>Review: <span styles="display:inline"; id="rateYo"></span></p></div>');
+
+    infowindow.open(map, marker);
+    $('#rateYo').rateYo({
+        starWidth: '12px',
+        rating: marker.rating
+    });
 }
 
-// Main Model
+/**
+ * @description Helper function for the alternative icon image
+ * @param {string} markerColor - Hexadecimal representation of a color for the icon
+ * @return MarkerImage - A new icon with an specific color
+ */
+
+/**
+ * @description Container of the model of the page
+ * @constructor
+ */
 function data() {
     var self = this;
     self.places = ko.observableArray();
     self.hasError = ko.observable(false);
 }
 
-// Place-Marker model
+/**
+ * @description Place-Marker model, contain the marker, place and foursquare model of a place
+ * @constructor
+ * @param {Place} place - The place from the map
+ * @param {Marker} marker - The marker pointing to a place on the map
+ */
 function PlaceMarker(place, marker) {
     var self = this;
     self.place = ko.observable(place);
     self.marker = ko.observable(marker);
-    self.clicked = ko.observable(false);
+    self.fourSquareData = ko.observable();
 }
 
+/**
+ * @description FourSquareData model, contain place information returned from a the FourSquare API
+ * @constructor
+ * @param {string} address - The address from a place
+ * @param {string} phone - The phone from a place
+ * @param {string} url - The URL of a place
+ */
+function FourSquareData(address, phone, url) {
+    var self = this;
+    self.address = ko.observable(address);
+    self.phone = ko.observable(phone);
+    self.url = ko.observable(url);
+}
 
-// ModelView
+/**
+ * @description ModelViewViewModel of the page
+ * @constructor
+ */
 function PlacesViewModel() {
     // self reference
     var self = this;
-
-    // Array for the FOURSQUARE RESULTS
-    self.placeName = [];
-    self.fourSquare = [];
+    // Variable for filtering text
+    self.filterText = ko.observable('');
+    // Selected item, set an empty item
+    var placeHolder = new PlaceMarker();
+    placeHolder.fourSquareData(new FourSquareData('', '', ''));
+    self.selectedItem = ko.observable(placeHolder);
     // Variable containing the model
     self.model = ko.observable(new data());
-    // Variable for filtering text
-    self.filterText = ko.observable("");
     // Computed field
     self.filteredList = ko.computed(function() {
         var list;
@@ -111,11 +161,12 @@ function PlacesViewModel() {
         return list;
     }, self);
 
-    // Function to pull data from the remote API
+    /**
+     * @description Function to pull data from the remote API's
+     */
     self.pullData = function() {
         // Get the boundaries of the map
         var bounds = map.getBounds();
-
         // Initialize the service to find places
         var placesService = new google.maps.places.PlacesService(map);
         // Initialize the request parameters
@@ -132,13 +183,7 @@ function PlacesViewModel() {
                 for (var i = 0; i < results.length; i++) {
                     // Set temp var
                     place = results[i];
-
-                    // Start pulling data from 4square
-                    if ($.inArray(place.name, self.placeName) === -1) {
-                        // If place name is not in the array, just added
-                        self.placeName.push(place.name);
-                    }
-
+                    console.log(place);
                     // Create markers for places
                     icon = {
                         url: place.icon,
@@ -160,75 +205,141 @@ function PlacesViewModel() {
                     marker.bufferIcon = marker.icon;
 
                     // If a marker is clicked, do a place details search on it in the next function.
-                    marker.addListener('click', function() {
-                        if (this.getAnimation() !== null) {
-                            this.setAnimation(null);
-                            this.setIcon(this.bufferIcon);
-                            //item.clicked(false);
-                        } else {
-                            this.setIcon(bouncingIcon);
-                            this.setAnimation(google.maps.Animation.BOUNCE);
-                            //item.clicked(true);
+                    marker.addListener('click', (function() {
+                        return function() {
+                            var marker = this;
+                            //Change the animation of the icon
+                            self.setAnimationItem(marker);
+                            // Set the item clicked
+                            self.selectedItem(marker.parent);
+                            // Pull the info only the first time,if the marker is clicked and no errors before        
+                            populateInfoWindow(marker, largeInfowindow);
                         }
+                    })());
 
-                        populateInfoWindow(this, largeInfowindow);
-                    });
-                    self.model().places.push(new PlaceMarker(place, marker));
+                    // Create new PlaceMarker object
+                    var placeMarker = new PlaceMarker(place, marker);
 
-                    console.log("Name: " + results[i].name + ", lat: " + results[i].geometry.location.lat() + ", lng: " + results[i].geometry.location.lng());
+                    // Set the parent container and the rating
+                    marker.parent = placeMarker;
+                    marker.rating = place.rating;
+
+
+                    // Get FourSquare data for the place
+                    self.pullFourSquareData(place.geometry.location, place.name, placeMarker.fourSquareData);
+
+                    // Store the places and the markers
+                    self.model().places.push(placeMarker);
                 }
-
-                console.log(self.placeName);
-
                 // Add markers to map
                 self.showMarkers();
 
                 // No errors
                 self.model().hasError(false);
             } else {
-                console.log("Something went wrong...");
+                console.log('Something went wrong...');
                 self.model().hasError(true);
                 $('#myModal').modal('toggle');
             }
         });
     };
 
-    self.filterList = function() {};
-
-    self.clickItem = function(item) {
-        if (item.marker().getAnimation() !== null) {
-            item.marker().setAnimation(null);
-            item.marker().setIcon(item.marker().bufferIcon);
-            item.clicked(false);
-        } else {
-            item.marker().setIcon(bouncingIcon);
-            item.marker().setAnimation(google.maps.Animation.BOUNCE);
-            item.clicked(true);
+    /**
+     * @description Helper function to start the animation of an icon
+     */
+    self.setAnimationItem = function(clickedItem) {
+        for (var i = 0; i < self.model().places().length; i++) {
+            if (clickedItem === self.model().places()[i].marker()) {
+                if (clickedItem.getAnimation() !== null) {
+                    clickedItem.setAnimation(null);
+                    clickedItem.setIcon(clickedItem.bufferIcon);
+                } else {
+                    clickedItem.setIcon(bouncingIcon);
+                    clickedItem.setAnimation(google.maps.Animation.BOUNCE);
+                }
+            } else {
+                self.model().places()[i].marker().setAnimation(null);
+                self.model().places()[i].marker().setIcon(self.model().places()[i].marker().bufferIcon);
+            }
         }
-    }
+    };
 
-    // This function will loop through the markers array and display them all.
+
+    /**
+     * @description Click event when an item is selected from the list
+     * @constructor
+     */
+    self.clickItem = function(item) {
+        self.setAnimationItem(item.marker());
+        self.selectedItem(item);
+        populateInfoWindow(item.marker(), largeInfowindow);
+    };
+
+    /**
+     * @description Helper function to pull FourSquare data
+     */
+    self.pullFourSquareData = function(location, title, fourSquareData) {
+        var fourSquareURL = FOUR_SQUARE_URL.
+        replace('LAT_PARAM', location.lat).
+        replace('LNG_PARAM', location.lng).
+        replace('SEARCH_ITEM', title).
+        replace(' ', '%20');
+
+        $.getJSON(fourSquareURL, function(data) {
+
+            var address = '';
+            var phone = '';
+            var url = '';
+
+            if (data.response.venues) {
+                if (data.response.venues.length > 0) {
+                    if (data.response.venues[0].location) {
+                        if (data.response.venues[0].location.formattedAddress)
+                            address = data.response.venues[0].location.formattedAddress.join();
+                    }
+                    if (data.response.venues[0].contact) {
+                        if (data.response.venues[0].contact.formattedPhone)
+                            phone = data.response.venues[0].contact.formattedPhone;
+                    }
+                    if (data.response.venues[0].url)
+                        url = data.response.venues[0].url;
+                }
+            }
+
+            // Create FourSquare model
+            fourSquareData(new FourSquareData(address, phone, url));
+
+        }).fail(function() {
+            console.log("Something is wrong...");
+            $('#alert-msg').html('<strong>Warning!</strong> Unable to get the data from FourSquare.');
+            console.log(self.model().hasError(true));
+        });
+    };
+
+    // 
+    /**
+     * @description This function will loop through the markers array and display them all for the first time.
+     */
     self.showMarkers = function() {
+        // Extend the map to fit the markers 
+        var bounds = new google.maps.LatLngBounds();
+
         // Extend the boundaries of the map for each marker and display the marker
         for (var j = 0; j < self.filteredList().length; j++) {
             setTimeout(function(marker, map) {
                 marker.setMap(map);
-            }, j * 200, self.filteredList()[j].marker(), map);
+            }, j * 50, self.filteredList()[j].marker(), map);
+            bounds.extend(self.filteredList()[j].marker().position);
         }
-    }
-
-    // This function will loop through the listings and hide them all.
-    self.hideMarkers = function() {
-        for (var i = 0; i < self.filteredList().length; i++) {
-            self.filteredList()[i].marker().setMap(null);
-        }
-    }
+        map.fitBounds(bounds);
+    };
 }
 
-var init = new PlacesViewModel()
+// Apply the bindings from knockout
+var init = new PlacesViewModel();
 ko.applyBindings(init);
 
-// Start execution when ALL the content on the page has loaded
+// Start execution when ALL the content on the page is loaded
 $(window).load(function() {
     init.pullData();
 });
