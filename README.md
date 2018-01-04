@@ -9,9 +9,10 @@ ____________________________________________
 To run the application, you need to have a devide with the following requirements.
 
 ### Minimum Hardware Requirements
-	1. Broser with HTML5 support
+
+1. Broser with HTML5 support
 	
-	Supported Browsers:
+Supported Browsers:
 
 - Google Chrome version 37 or later on Windows 7 or later, Mac OS X 10.9 or later (Mavericks), Chrome OS, or Linux*
 - Internet Explorer 11 or later on Windows 8.1 or later
