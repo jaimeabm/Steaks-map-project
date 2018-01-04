@@ -10,7 +10,7 @@ To run the application, you need to have a devide with the following requirement
 
 ### Minimum Hardware Requirements
 
-1. Broser with HTML5 support
+1. Browser with HTML5 support.
 	
 Supported Browsers:
 
