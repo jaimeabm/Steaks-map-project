@@ -9,15 +9,18 @@ ____________________________________________
 To run the application, you need to have a devide with the following requirements.
 
 ### Minimum Hardware Requirements
-	1. 800 MHz Intel Pentium III or 800 MHz AMD Athlon or 1.2GHz Intel Celeron or 1.2 GHz AMD Duron processor 
-	2. 128 MB of RAM
-	3. 4 speed CD / DVD drive
-	4. 1400 MB of free hard disk space 
-	5. 32 MB video card with DirectX 9.0 compatible drivers  ("GeForce2"/"Radeon 8500" or better)
-	6. Keyboard
-	7. Mouse
-	8. python 2.7/3.1
+	1. Broser with HTML5 support
+	
+	Supported Browsers:
 
+- Google Chrome version 37 or later on Windows 7 or later, Mac OS X 10.9 or later (Mavericks), Chrome OS, or Linux*
+- Internet Explorer 11 or later on Windows 8.1 or later
+- Microsoft Edge on Windows 10
+- Mozilla Firefox version 47 or later on Windows Vista or later, Mac OS X 10.7 or later, or Linux*
+- Supported on stable, official release builds from Mozilla. Non-Mozilla builds are not supported.
+- Opera version 33 or later on Windows Vista Service Pack 2 or later and Mac OS X 10.9 or later
+- Safari on Mac OS X 10.10 or later (Yosemite) (Supported on all 2012 or later models and select 2011 models)
+	
 ## How to view the page
 
 You need to run the web page from a server, execute the following command from the terminal or the command line.
